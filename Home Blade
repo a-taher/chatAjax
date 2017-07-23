@@ -1,0 +1,180 @@
+@extends('layouts.app')
+
+@section('content')
+
+@include('MainHome')
+
+    <div class="spacer-60"></div>
+
+    <!-- Featured Properties Section -->
+    <section id="feat_propty">
+        <div class="container">
+            <div class="row">
+                <div class="titl_sec">
+                    <div class="col-xs-6">
+
+                        <h3 class="main_titl text-left">
+                            {{ trans('Home.FeaturedBiluding') }}
+                        </h3>
+
+                    </div>
+                    <div class="col-xs-6">
+
+                        <h3 class="link_titl text-left">
+                    <a href="{{ url('') . '/AllBuilding' }}"> {{ trans('Home.ViewMore') }} </a>
+                </h3>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <!-- Property 1 -->
+                @foreach ( $building as $bu )
+                <div class="col-md-4 building">
+                    <div class="panel panel-default">
+                        <div class="panel-image">
+                            <img class="img-responsive img-hover" src="{{ url('public') . '/upload/buildingImage/' . $bu->image }}" alt="{{ $bu->name }}">
+                            <div class="img_hov_eff">
+                                <a class="btn btn-default btn_trans" href="{{ url('') . '/building/' . $bu->id }}"> {{ trans('Home.ViewMore') }} </a>
+                            </div>
+
+                        </div>
+                        <div class="sal_labl">
+                            @if ( $bu->for == 1 ) {{ trans('Home.Sale') }} @elseif( $bu->for == 2 ) {{ trans('Home.Rent') }} @endif
+                        </div>
+
+                        <div class="panel-body">
+                            <div class="prop_feat">
+                                <p class="area"><i class="fa fa-home"></i> {{ $bu->space }} {{ trans('Home.SqFt') }}</p>
+                                <p class="bedrom"><i class="fa fa-bed"></i> {{ $bu->room }} {{ trans('Home.Bedrooms') }}</p>
+                                <p class="bedrom"><i class="fa fa-car"></i> {{ $bu->garage }} {{ trans('Home.Garage') }}</p>
+                            </div>
+                            <h3 class="sec_titl">
+                             {{ $bu->name }}                
+                            </h3>
+
+                            <p class="sec_desc">
+                                {{ $bu->slug }}
+                            </p>
+                            <div class="panel_bottom">
+                                <div class="col-md-6">
+                                    <p class="price text-left"> {{ $bu->price }} {{ trans('Home.LE') }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="readmore text-left"> <a href="{{ url('') . '/building/' .$bu->id }}"> {{ trans('Home.ReadMore') }} </a> </p>
+
+                                </div>
+
+
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="share_btn">
+                        <i class="fa fa-share-alt"></i>
+                            <div class="soc_btn">
+                                <ul>
+                                    <div class="addthis_sharing_toolbox"></div>
+                                </ul>
+                            </div>
+                    </div>
+
+
+                </div>
+                @endforeach
+
+            </div>
+            <!-- /.row -->
+        </div>
+        <!-- /.container -->
+    </section>
+
+    <div class="spacer-60"></div>
+
+    <!-- Subscribe Section -->
+    <section id="subscribe">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 text-right subs_info">
+                    <h5>
+                        {{ trans('Home.ForSubscribe') }}
+                    </h5>
+
+                    <h2>
+                   {{ trans('Home.SaveOf') }}
+                </h2>
+                </div>
+                <!-- Subscribe Form -->
+                <div class="col-md-6 text-left subs_form">
+                    <form method="post" action="{{ url('/subscribe') }}">
+                        {{ csrf_field() }}
+                        <div class="control-group form-group">
+                            <div class="controls">
+                                <input type="email" class="form-control" id="email" name="email" required placeholder="{{ trans('Home.Email') }}">
+                                <button type="submit" class="btn btn-primary">{{ trans('Home.Subscribe') }}</button>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+            <!-- /.row -->
+        </div>
+        <!-- /.container -->
+    </section>
+
+    <div class="spacer-60"></div>
+
+    <!-- Latest News Section -->
+    <section id="lates_news">
+        <div class="container">
+            <div class="row">
+                <div class="titl_sec">
+                    <div class="col-xs-6">
+
+                        <h3 class="main_titl text-left">
+                            {{ trans('Home.LatestNews') }}
+                        </h3>
+
+                    </div>
+                    <div class="col-xs-6">
+
+                        <h3 class="link_titl text-left">
+                            <a href="{{ url('') . '/AllNews' }}"> {{ trans('Home.ViewMore') }} </a>
+                        </h3>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <!-- News -->
+                @foreach( $news as $n )
+                <div class="col-md-4 news">
+                    <div class="panel panel-default">
+                        <div class="panel-image">
+                            <img class="img-responsive img-hover" src="{{ url('public') . '/upload/NewsImage/' . $n->image }}" alt="{{ $n->title }}">
+
+                        </div>
+
+                        <div class="panel-body">
+                            <div class="news_dtd">
+                                <p> {{ date('Y - m - d', strtotime($n->created_at)) }} by <a href="#"> {{ $n->user_id }} </a> </p>
+                            </div>
+                            <h3 class="sec_titl">
+                                {{ $n->title }}                
+                            </h3>
+
+                            <p class="sec_desc">
+                                {{ $n->slug }}
+                            </p>
+                            <p class="readmore text-left"> <a href="{{ url('') . '/news/' . $n->id }}"> {{ trans('Home.ReadMore') }} </a> </p>
+
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+
+            </div>
+            <!-- /.row -->
+        </div>
+        <!-- /.container -->
+    </section>
+
+@endsection
