@@ -1,0 +1,169 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests;
+use App\Http\Requests\ContactRequest;
+use App\Http\Requests\OwnerRequest;
+use Illuminate\Http\Request;
+
+use App\News;
+use App\Building;
+use App\User;
+use App\Category;
+use App\Pages;
+use App\Settings;
+use App\Social;
+use App\Contact;
+use App\Subscribe;
+use App\MsgOwner;
+
+use DB;
+
+use Auth;
+
+use validate;
+
+class HomeController extends Controller
+{
+    
+    public function index()
+    {
+        $news       = News::orderBy('id', 'desc')->where('status', '1')->take(3)->get();
+        $building   = Building::orderBy('id', 'desc')->where('status', '1')->take(6)->get();
+        $setting    = Settings::get()->first();
+        return view('home', ['title' => $setting->site_name, 'news' => $news, 'building' => $building]);
+    }
+
+    public function AllNews()
+    {
+        $news       = News::orderBy('id', 'desc')->where('status', '1')->paginate(6);
+        return view('AllNews', ['title' => trans('Home.AllNews'), 'news' => $news]);
+    }
+
+    public function AllBuilding()
+    {
+        $building   = Building::orderBy('id', 'desc')->where('status', '1')->paginate(6);
+        return view('AllBuilding', ['title' => trans('Home.AllBuilding'), 'building' => $building]);
+    }
+
+    public function ShowPage($id)
+    {
+        $page       = Pages::find($id);
+        return view('ShowPage', ['page' => $page]);
+    }
+
+    public function contact()
+    {
+        $social     = Social::get()->first();
+        $setting    = Settings::get()->first();
+        return view('Contact', ['title' => trans('Home.Contact'), 'settings' => $setting, 'social' => $social]);
+    }
+
+    public function contactSave(ContactRequest $request) {
+
+        $add            = new Contact;
+
+        $add->name      = $request->input('name');
+        $add->email     = $request->input('email');
+        $add->phone     = $request->input('phone');
+        $add->website   = $request->input('website');
+        $add->message   = $request->input('msg');
+
+        $add->save();
+
+        return back()->with(['success' => trans('Home.AddSuccess')]);
+ 
+    }
+
+    public function ShowCate($id)
+    {
+        $cate   = Category::find($id);
+        $bu     = Building::orderBy('id', 'desc')->where('status', '1')->where('cate_id', $id)->paginate(6);
+
+        return view('Category', ['title' => $cate->ar_name, 'cate' => $cate, 'building' => $bu]);
+    }
+
+    public function subscribe(Request $request)
+    {
+      
+        $add                = new Subscribe;
+
+        $add->email         = $request->input('email');
+        $add->save();
+            
+        return back()->with(['success' => trans('Home.SubSuccess')]);
+
+    }
+
+    public function search(Request $request)
+    {
+
+        $requestAll = array_except($request->toArray(), ['submit', '_token']);
+
+        if (empty(array_filter($requestAll))) {
+
+            return view('errors.404', ['error' => trans('Home.NoEmpty')]);
+
+        } else {
+
+            foreach ($requestAll as $key => $req) {
+                
+                if ($req != '') {
+
+                    $Search = Building::where($key, $req)->where('status', '1')->get();
+
+                    if(!empty(array_filter($Search->toArray()))) {
+
+                        return view('Search', ['Search' => $Search, 'title' => trans('Home.SearchResualt')]);
+
+                    } else {
+
+                        return view('errors.503', ['error' => trans('Home.NoEmpty'), 'title' => trans('Home.SearchResualt')]);
+
+                    }
+                } 
+
+            }
+        }
+    }
+
+    public function ContactOwner(OwnerRequest $request)
+    {
+        $add            = new MsgOwner;
+
+        $add->name      = $request->input('name');
+        $add->email     = $request->input('email');
+        $add->phone     = $request->input('phone');
+        $add->msg       = $request->input('msg');
+        $add->user_id   = $request->input('user_id');
+        $add->owner_id  = $request->input('owner_id');
+        $add->bu_id     = $request->input('bu_id');
+        $add->ip        = $request->ip();
+
+        $add->save();
+
+        return back()->with(['success' => trans('Home.AddSuccess')]);
+
+    }
+
+    public function ShowNativ()
+    {
+        $userID = Auth::user()->id;
+
+        $getNativ = MsgOwner::orderBy('id', 'desc')->where('owner_id', $userID)->paginate(10);
+        return view('ShowNativ', ['title' => trans('Home.ShowNativ'), 'getNativ' => $getNativ]);
+
+    }
+
+    public function SeenNav($id)
+    {
+        $edit = MsgOwner::findOrFail($id);
+        $edit->status = '1';
+        $edit->save();
+
+        return back()->with(['success' => trans('Home.UpdatedData')]);
+
+    }
+
+}
